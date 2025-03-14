@@ -1,6 +1,10 @@
 
-// Importing Express:
+// Importing Express and other apps:
 import express from "express"
+import bcrypt from "bcrypt";
+import cors from 'cors';
+import knex from 'knex';
+import pg from 'pg';
 
 //Initialize an Express application:
 const app = express();
@@ -8,6 +12,25 @@ const app = express();
 //Defining a Port: Setting a port number for the server to listen on.
 
 const PORT = process.env.PORT || 3000;
+
+//Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
+app.use(cors());
+
+const db = knex ({
+    client: 'pg',
+    connection: {
+      host: '127.0.0.1',
+      port: 5432,
+      user: 'shwetanarendernath',
+      password: 'password',
+      database: 'smartbrain-db',
+    },
+  });
+
+
+db.select('*').from('users').then(data=> {
+    console.log(data);
+});
 
 //creating a varible in place of a database
 
@@ -49,64 +72,101 @@ app.get("/", (req, res) => {
 
 
 app.post('/signin', (req, res) => {
+
+    // For demonstration, I have input this as a known hash for the password "oranges"
+    const knownHash = "$2b$10$cJw3FsJhQK8SxZ6JUvL3eeM/VqNl5naA5Ulhzoy4rx1nCDgfZMOCC";
+  
+    // Compare the password sent in the request with the known hash.
+    bcrypt.compare(req.body.password, knownHash, (err, isMatch) => {
+
     // Ensure the property name is spelled correctly
-    if (
-      req.body.email === database.users[0].email &&
-      req.body.password === database.users[0].password
-    ) {
-      // Send success response if credentials match
-      res.json("success");
-    } else {
+    if (err) {
+        console.error("Error comparing passwords:", err);
+        return res.status(500).json("Error logging in");
+      }
+      if (isMatch) {
+        return res.json("success");
+      } else {
       // Send error response if credentials do not match
-      res.status(400).json("error logging in");
+      return res.status(400).json("error logging in");
     }
   });
+});
 
   app.post('/register', (req,res) => {
     // extracting the variables through destructuring.
     const { name, email, password }  = req.body;
-    database.users.push({
-        id:"125",
-        name: name,
-        email: email,
-        password:password,
-        entries:0,
-        joined: new Date()
-    });
-    res.json(database.users[database.users.length-1])
-  })
+  
+
+  // Set the number of salt rounds (a common default is 10)
+  const saltRounds = 10;
+
+  // Hash the plaintext password using bcrypt.hashSync
+  const hash = bcrypt.hashSync(password, saltRounds);
+  console.log('Hashed password:', hash);
+    
+    db('users')
+    .returning('*')
+    .insert({
+     email: email,
+     name: name,
+     joined: new Date()
+    }).then(user => {
+        res.json(user[0]);
+    })
+    .catch(err => res.status(400).json(err))
+  });
 
 
 app.get('/profile/:id', (req,res) => {
     const { id } = req.params;
     let found = false;
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            return res.json(user);
-            
+    db.select('*').from('users').where({id})
+      .then(user => {
+        if(user.length){
+          res.json(user[0])
+        } else {
+        res.status(400).json('Not Found')
         }
     })
-    if (!found) {
-        res.json("user not found")
-    }
+    .catch(err => res.status(400).json('not found'))
+    // database.users.forEach(user => {
+    //     if (user.id === id) {
+    //         found = true;
+    //         return res.json(user);      
+    //     }
+    // })
+    // if (!found) {
+    //     res.json("user not found")
+    // }
 })
 
 app.put("/image", (req, res) => {
     // Check if req.body is an array and get the first object
-    const data = Array.isArray(req.body) ? req.body[0] : req.body;
-    const { id } = data;
-    let found = false;
-    database.users.forEach(user => {
-        if (user.id === id) {
-            found = true;
-            user.entries++;
-            return res.json(user.entries);
-        }
-    });
-    if (!found) {
-        res.json("user not found");
-    }
+    // const data = Array.isArray(req.body) ? req.body[0] : req.body;
+    const { id } = req.body;
+    db('users').where('id', '=', id)
+    .increment('entries',1)
+    .returning('entries') 
+    .then(entries => {
+      res.json(entries[0].entries); //here we do as given instead of just entries[0]
+      console.log(entries)
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(400).json('Unable to update entries');
+    })
+    // let found = false;
+    // database.users.forEach(user => {
+    //     if (user.id === id) {
+    //         found = true;
+    //         user.entries++;
+    //         return res.json(user.entries);
+    //     }
+    // });
+    // if (!found) {
+    //     res.json("user not found");
+    // }
 });
 
 
