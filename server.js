@@ -73,25 +73,44 @@ app.get("/", (req, res) => {
 
 app.post('/signin', (req, res) => {
 
-    // For demonstration, I have input this as a known hash for the password "oranges"
-    const knownHash = "$2b$10$cJw3FsJhQK8SxZ6JUvL3eeM/VqNl5naA5Ulhzoy4rx1nCDgfZMOCC";
-  
-    // Compare the password sent in the request with the known hash.
-    bcrypt.compare(req.body.password, knownHash, (err, isMatch) => {
+    db.select('email', 'hash').from('login')
+        .where('email', '=', req.body.email)
+        .then(data => {
+            const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+            if(isValid){
+                console.log(isValid)
+                return db.select('*').from('users')
+                .where('email', '=', req.body.email)
+                .then(user => {
+                    console.log(user)
+                    res.json(user[0])
+                })
+                .catch(err => res.status(400).json('unable to get user'))
+            } else {
+                res.status(400).json('wrong credentials')
+            }
+        })
+        .catch(err => res.status(400).json('wrong credentials'))
+    });
 
-    // Ensure the property name is spelled correctly
-    if (err) {
-        console.error("Error comparing passwords:", err);
-        return res.status(500).json("Error logging in");
-      }
-      if (isMatch) {
-        return res.json("success");
-      } else {
-      // Send error response if credentials do not match
-      return res.status(400).json("error logging in");
-    }
-  });
-});
+    // // For demonstration, I have input this as a known hash for the password "oranges"
+    // const knownHash = "$2b$10$cJw3FsJhQK8SxZ6JUvL3eeM/VqNl5naA5Ulhzoy4rx1nCDgfZMOCC";
+  
+    // // Compare the password sent in the request with the known hash.
+    // bcrypt.compare(req.body.password, knownHash, (err, isMatch) => {
+
+    // // Ensure the property name is spelled correctly
+    // if (err) {
+    //     console.error("Error comparing passwords:", err);
+    //     return res.status(500).json("Error logging in");
+    //   }
+    //   if (isMatch) {
+    //     return res.json("success");
+    //   } else {
+    //   // Send error response if credentials do not match
+    //   return res.status(400).json("error logging in");
+    // }
+//   });
 
 
   app.post('/register', (req,res) => {
