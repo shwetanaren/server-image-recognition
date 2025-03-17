@@ -36,9 +36,9 @@ const db = knex ({
   });
 
 
-db.select('*').from('users').then(data=> {
-    console.log(data);
-});
+// db.select('*').from('users').then(data=> {
+//     console.log(data);
+// });
 
 
 // Built-in middleware to parse JSON data
@@ -69,3 +69,5 @@ app.post('/clarifai', (req,res) => {clarifai.handleClarifai(req,res,fetch)});
 app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
   });
+
+  
