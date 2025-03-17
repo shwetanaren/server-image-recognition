@@ -3,6 +3,10 @@
 export const handleRegister = (req,res, db, bcrypt) => {
     // extracting the variables through destructuring.
     const { name, email, password }  = req.body;
+    if(!email || !name || !password) {
+        return res.status(400).json("incorrect form submission");
+
+    }
   
   // Set the number of salt rounds (a common default is 10)
   const saltRounds = 10;
