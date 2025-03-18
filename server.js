@@ -26,7 +26,11 @@ app.use(cors());
 
 const db = knex ({
     client: 'pg',
-    connection: {
+    connection: process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL, 
+        ssl: { rejectUnauthorized: false }
+    } 
+    : {
       host: '127.0.0.1',
       port: 5432,
       user: 'shwetanarendernath',
