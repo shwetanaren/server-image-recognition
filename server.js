@@ -22,8 +22,8 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-//Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
-app.use(cors());
+// //Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
+// app.use(cors());
 
 // Or, to restrict it to your Netlify domain:
 app.use(cors({
@@ -81,4 +81,6 @@ app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
   });
 
-  
+  app.get('/test', (req, res) => {
+    res.json({ message: "CORS is working!" });
+  });
