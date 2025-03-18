@@ -17,12 +17,19 @@ const clarifaiKey = process.env.CLARFAI_KEY;
 //Initialize an Express application:
 const app = express();
 
+
 //Defining a Port: Setting a port number for the server to listen on.
 
 const PORT = process.env.PORT || 3000;
 
 //Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
 app.use(cors());
+
+// Or, to restrict it to your Netlify domain:
+app.use(cors({
+    origin: 'https://fancy-genie-6f67ae.netlify.app'
+  }));
+  
 
 const db = knex ({
     client: 'pg',
