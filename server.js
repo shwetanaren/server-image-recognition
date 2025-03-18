@@ -34,32 +34,32 @@ const PORT = process.env.PORT || 3000;
 // app.use(cors());
 
 // 3️⃣ Database connection (Railway DATABASE_URL)
-const db = knex({
-    client: "pg",
-    connection: {
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-    },
-  });
+// const db = knex({
+//     client: "pg",
+//     connection: {
+//       connectionString: process.env.DATABASE_URL,
+//       ssl: { rejectUnauthorized: false },
+//     },
+//   });
 
   app.get('/test', (req, res) => {
     res.json({ message: "CORS is working!" });
   });
 
-// const db = knex ({
-//     client: 'pg',
-//     connection: process.env.DATABASE_URL
-//     ? { connectionString: process.env.DATABASE_URL, 
-//         ssl: { rejectUnauthorized: false }
-//     } 
-//     : {
-//       host: '127.0.0.1',
-//       port: 5432,
-//       user: 'shwetanarendernath',
-//       password: 'password',
-//       database: 'smartbrain-db',
-//     },
-//   });
+const db = knex ({
+    client: 'pg',
+    connection: process.env.DATABASE_URL
+    ? { connectionString: process.env.DATABASE_URL, 
+        ssl: { rejectUnauthorized: false }
+    } 
+    : {
+      host: '127.0.0.1',
+      port: 5432,
+      user: 'shwetanarendernath',
+      password: 'password',
+      database: 'smartbrain-db',
+    },
+  });
 
 
 // db.select('*').from('users').then(data=> {
