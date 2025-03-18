@@ -14,6 +14,12 @@ import * as clarifai from './controllers/clarifai.js';
 
 const clarifaiKey = process.env.CLARFAI_KEY;
 
+// Or, to restrict it to your Netlify domain:
+app.use(cors({
+    origin: 'https://fancy-genie-6f67ae.netlify.app'
+  }));
+  
+
 //Initialize an Express application:
 const app = express();
 
@@ -25,26 +31,33 @@ const PORT = process.env.PORT || 3000;
 // //Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
 // app.use(cors());
 
-// Or, to restrict it to your Netlify domain:
-app.use(cors({
-    origin: 'https://fancy-genie-6f67ae.netlify.app'
-  }));
-  
-
-const db = knex ({
-    client: 'pg',
-    connection: process.env.DATABASE_URL
-    ? { connectionString: process.env.DATABASE_URL, 
-        ssl: { rejectUnauthorized: false }
-    } 
-    : {
-      host: '127.0.0.1',
-      port: 5432,
-      user: 'shwetanarendernath',
-      password: 'password',
-      database: 'smartbrain-db',
+// 3️⃣ Database connection (Railway DATABASE_URL)
+const db = knex({
+    client: "pg",
+    connection: {
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
     },
   });
+
+  app.get('/test', (req, res) => {
+    res.json({ message: "CORS is working!" });
+  });
+
+// const db = knex ({
+//     client: 'pg',
+//     connection: process.env.DATABASE_URL
+//     ? { connectionString: process.env.DATABASE_URL, 
+//         ssl: { rejectUnauthorized: false }
+//     } 
+//     : {
+//       host: '127.0.0.1',
+//       port: 5432,
+//       user: 'shwetanarendernath',
+//       password: 'password',
+//       database: 'smartbrain-db',
+//     },
+//   });
 
 
 // db.select('*').from('users').then(data=> {
@@ -81,6 +94,3 @@ app.listen(PORT, () => {
     console.log(`App is running on port ${PORT}`);
   });
 
-  app.get('/test', (req, res) => {
-    res.json({ message: "CORS is working!" });
-  });
