@@ -12,11 +12,10 @@ import * as profile from './controllers/profile.js';
 import * as image from './controllers/image.js';
 import * as clarifai from './controllers/clarifai.js';
 
-const clarifaiKey = process.env.CLARFAI_KEY;
+
 
 //Initialize an Express application:
 const app = express();
-
 
 
 // Or, to restrict it to your Netlify domain:
@@ -33,19 +32,15 @@ const PORT = process.env.PORT || 3000;
 // //Adding the cors middleware to be used before the routes. This enables cross origin resource sharing by default.
 // app.use(cors());
 
-// 3️⃣ Database connection (Railway DATABASE_URL)
-// const db = knex({
-//     client: "pg",
-//     connection: {
-//       connectionString: process.env.DATABASE_URL,
-//       ssl: { rejectUnauthorized: false },
-//     },
-//   });
+
+
 
   app.get('/test', (req, res) => {
     res.json({ message: "CORS is working!" });
   });
 
+
+// 3️⃣ Database connection (Railway DATABASE_URL)
 const db = knex ({
     client: 'pg',
     connection: process.env.DATABASE_URL
@@ -62,12 +57,8 @@ const db = knex ({
   });
 
 
-// db.select('*').from('users').then(data=> {
-//     console.log(data);
-// });
 
-
-// Built-in middleware to parse JSON data
+// Built-in middleware to parse JSON data on recieving the HTTP POST body requests
 app.use(express.json());
 
 // Built-in middleware to parse URL-encoded data
